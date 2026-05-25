@@ -1,6 +1,6 @@
 // File: src/main/java/com/eserian/homes/config/SecurityConfig.java
 // LOCATION: BACKEND - Spring Boot Security Configuration
-// UPDATED - Added /api/test/** to public endpoints
+// UPDATED - Added H2 console support for Render deployment
 
 package com.eserian.homes.config;
 
@@ -17,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -67,9 +68,13 @@ public class SecurityConfig {
                         // ============================================
                         .requestMatchers("/", "/health").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/test/**").permitAll()  // ← ADD THIS LINE FOR TEST ENDPOINT
+                        .requestMatchers("/api/test/**").permitAll()
                         .requestMatchers("/api/admin/login").permitAll()
                         .requestMatchers("/api/admin/health").permitAll()
+
+                        // H2 Console (for development on Render)
+                        .requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
+
                         .requestMatchers(HttpMethod.GET, "/api/properties").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/properties/approved").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/properties/{id}").permitAll()
@@ -106,6 +111,7 @@ public class SecurityConfig {
                         // ============================================
                         .anyRequest().authenticated()
                 )
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
