@@ -1,29 +1,22 @@
-# Create .gitignore
 $gitignore = @'
-# Backend
-backend/target/
-backend/.idea/
-backend/*.log
-backend/.mvn/wrapper/maven-wrapper.jar
+# Maven / Spring Boot
+/target/
+/.mvn/
+*.log
 
-# Frontend
-frontend/node_modules/
-frontend/build/
-frontend/.env
-frontend/.env.local
-
-# IDE
+# IntelliJ / IDE
 .idea/
 *.iml
 .vscode/
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
 
 # Environment
 .env
 .env.local
+application-local.properties
 '@
 
 $gitignore | Out-File -FilePath ".gitignore" -Encoding UTF8
