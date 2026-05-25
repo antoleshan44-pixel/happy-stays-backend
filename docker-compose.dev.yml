@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # MySQL Database only
+  mysql:
+    image: mysql:8.0
+    container_name: eserian-mysql-dev
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: newpassword123
+      MYSQL_DATABASE: airbnb_clone
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data-dev:/var/lib/mysql
+
+  # Backend with volume mount (for hot reload)
+  backend-dev:
+    image: maven:3.9-eclipse-temurin-17
+    container_name: eserian-backend-dev
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: airbnb_clone
+      DB_USERNAME: root
+      DB_PASSWORD: newpassword123
+      JWT_SECRET: dev-secret-key
+    command: >
+      sh -c "
+      mvn dependency:go-offline -B &&
+      mvn spring-boot:run
+      "
+    depends_on:
+      - mysql
+
+volumes:
+  mysql-data-dev:

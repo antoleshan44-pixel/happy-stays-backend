@@ -1,0 +1,76 @@
+# Create docker-compose.yml
+  $dockerCompose = @'
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: eserian-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-newpassword123}
+      MYSQL_DATABASE: ${DB_NAME:-airbnb_clone}
+      MYSQL_USER: ${DB_USERNAME:-root}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-newpassword123}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - eserian-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_PASSWORD:-newpassword123}"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+
+  # Spring Boot Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: eserian-backend
+    restart: always
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-airbnb_clone}
+      DB_USERNAME: ${DB_USERNAME:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-newpassword123}
+      JWT_SECRET: ${JWT_SECRET:-default-secret-key-change-in-production}
+      SERVER_PORT: 8080
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - eserian-network
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: eserian-frontend
+    restart: always
+    environment:
+      REACT_APP_API_URL: http://localhost:8080/api
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - eserian-network
+
+volumes:
+  mysql-data:
+
+networks:
+  eserian-network:
+    driver: bridge
+  '@
+  
+  $dockerCompose | Out-File -FilePath "docker-compose.yml" -Encoding UTF8
