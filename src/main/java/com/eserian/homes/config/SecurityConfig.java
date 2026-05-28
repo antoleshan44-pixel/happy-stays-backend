@@ -1,7 +1,3 @@
-// File: src/main/java/com/eserian/homes/config/SecurityConfig.java
-// LOCATION: BACKEND - Spring Boot Security Configuration
-// UPDATED - Added H2 console support for Render deployment
-
 package com.eserian.homes.config;
 
 import com.eserian.homes.security.JwtAuthFilter;
@@ -43,7 +39,8 @@ public class SecurityConfig {
                 "http://localhost:3000",
                 "http://localhost:8000",
                 "http://localhost:8080",
-                "https://eserian-homes1.vercel.app"
+                "https://eserian-homes1.vercel.app",
+                "https://happy-stays-frontend.onrender.com"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
